@@ -1081,22 +1081,13 @@ def is_in_or_equal(path_1: str | Path, path_2: str | Path) -> bool:
     Parameters:
         path_1: str or Path (to file or directory)
         path_2: str or Path (to file or directory)
-
-    Security note (CVE-2025-23042): paths are normalised to lowercase before
-    comparison so that the ACL check is case-insensitive on macOS and Windows,
-    matching the behaviour of those case-insensitive file systems.
     """
     path_1, path_2 = abspath(path_1), abspath(path_2)
-    # Normalize case for case-insensitive filesystem compatibility.
-    # On Linux (case-sensitive FS) str.lower() is a no-op in practice because
-    # two paths that differ only in case refer to different files anyway.
-    path_1_normalized = Path(str(path_1).lower())
-    path_2_normalized = Path(str(path_2).lower())
     try:
-        relative_path = path_1_normalized.relative_to(path_2_normalized)
+        relative_path = path_1.relative_to(path_2)
         if str(relative_path) == ".":
             return True
-        relative_path = path_1_normalized.parent.relative_to(path_2_normalized)
+        relative_path = path_1.parent.relative_to(path_2)
         return ".." not in str(relative_path)
     except ValueError:
         return False
