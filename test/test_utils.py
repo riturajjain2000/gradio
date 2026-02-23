@@ -372,6 +372,15 @@ def test_is_in_or_equal():
     assert not is_in_or_equal("/safe_dir/subdir/../../unsafe_file.txt", "/safe_dir/")
 
 
+def test_is_in_or_equal_security_case_insensitivity():
+    # CVE-2025-23042: Case normalization ensures ACL checks cannot be bypassed 
+    # on case-insensitive filesystems (macOS/Windows)
+    assert is_in_or_equal("/Resources/admin/secret.txt", "/resources/admin")
+    assert is_in_or_equal("/resources/adMin/secret.txt", "/resources/admin")
+    assert not is_in_or_equal("/resources/admin/../outside.txt", "/resources/admin")
+    assert not is_in_or_equal("/resources/adMin/../outside.txt", "/resources/admin")
+
+
 def create_path_string():
     return st.lists(
         st.one_of(
